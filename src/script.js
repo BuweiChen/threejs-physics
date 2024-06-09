@@ -48,32 +48,6 @@ floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0.5);
 /**
  * Utils
  */
-const createSphere = (radius, position) => {
-  const mesh = new THREE.Mesh(
-    new THREE.SphereGeometry(radius, 20, 20),
-    new THREE.MeshStandardMaterial({
-      metalness: 0.3,
-      roughness: 0.4,
-      envMap: environmentMapTexture,
-      envMapIntensity: 0.5,
-    })
-  );
-  mesh.castShadow = true;
-  mesh.position.copy(position);
-  scene.add(mesh);
-
-  const shape = new CANNON.Sphere(radius);
-  const body = new CANNON.Body({
-    mass: 1,
-    position: new CANNON.Vec3(0, 3, 0),
-    shape: shape,
-    material: plasticMaterial,
-  });
-  body.position.copy(position);
-  world.addBody(body);
-};
-
-createSphere(0.5, { x: 0, y: 3, z: 0 });
 
 /**
  * Base
@@ -115,6 +89,40 @@ const environmentMapTexture = cubeTextureLoader.load([
 // sphere.castShadow = true;
 // sphere.position.y = 0.5;
 // scene.add(sphere);
+
+const objectToUpdate = [];
+
+const createSphere = (radius, position) => {
+  const mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(radius, 20, 20),
+    new THREE.MeshStandardMaterial({
+      metalness: 0.3,
+      roughness: 0.4,
+      envMap: environmentMapTexture,
+      envMapIntensity: 0.5,
+    })
+  );
+  mesh.castShadow = true;
+  mesh.position.copy(position);
+  scene.add(mesh);
+
+  const shape = new CANNON.Sphere(radius);
+  const body = new CANNON.Body({
+    mass: 1,
+    position: new CANNON.Vec3(0, 3, 0),
+    shape: shape,
+    material: plasticMaterial,
+  });
+  body.position.copy(position);
+  world.addBody(body);
+
+  objectToUpdate.push({
+    mesh: mesh,
+    body: body,
+  });
+};
+
+createSphere(0.5, { x: 0, y: 3, z: 0 });
 
 /**
  * Floor
@@ -212,9 +220,12 @@ const tick = () => {
   oldElapsedTime = elapsedTime;
 
   // Update physics
-  sphereBody.applyForce(new CANNON.Vec3(-0.5, 0, 0), sphereBody.position);
+  //   sphereBody.applyForce(new CANNON.Vec3(-0.5, 0, 0), sphereBody.position);
 
   world.step(1 / 60, deltaTime, 3);
+  for (const obj of objectToUpdate) {
+    obj.mesh.position.copy(obj.body.position);
+  }
   //   sphere.position.x = sphereBody.position.x;
   //   sphere.position.y = sphereBody.position.y;
   //   sphere.position.z = sphereBody.position.z;
