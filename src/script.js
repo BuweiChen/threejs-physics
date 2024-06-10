@@ -189,7 +189,12 @@ debugObject.createBox = () => {
 gui.add(debugObject, "createBox");
 
 debugObject.reset = () => {
-  console.log("reset");
+  for (const obj of objectToUpdate) {
+    obj.body.removeEventListener("collide", playHitSound);
+    world.removeBody(obj.body);
+    scene.remove(obj.mesh);
+  }
+  objectToUpdate.splice(0, objectToUpdate.length);
 };
 gui.add(debugObject, "reset");
 
