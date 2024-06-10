@@ -52,6 +52,17 @@ floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0.5);
  * Sounds
  */
 
+const hitSound = new Audio("/sounds/hit.mp3");
+
+const playHitSound = (collision) => {
+  const impactStrength = collision.contact.getImpactVelocityAlongNormal();
+  if (impactStrength > 1.5) {
+    hitSound.volume = Math.random();
+    hitSound.currentTime = 0;
+    hitSound.play();
+  }
+};
+
 /**
  * Base
  */
@@ -117,6 +128,7 @@ const createSphere = (radius, position) => {
     shape: shape,
     material: plasticMaterial,
   });
+  body.addEventListener("collide", playHitSound);
   body.position.copy(position);
   world.addBody(body);
 
@@ -160,6 +172,7 @@ const createBox = (width, height, depth, position) => {
     shape: shape,
     material: plasticMaterial,
   });
+  body.addEventListener("collide", playHitSound);
   body.position.copy(position);
   world.addBody(body);
   objectToUpdate.push({ mesh, body });
@@ -174,6 +187,11 @@ debugObject.createBox = () => {
 };
 
 gui.add(debugObject, "createBox");
+
+debugObject.reset = () => {
+  console.log("reset");
+};
+gui.add(debugObject, "reset");
 
 /**
  * Floor
