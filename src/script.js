@@ -135,6 +135,46 @@ debugObject.createSphere = () => {
 };
 gui.add(debugObject, "createSphere");
 
+const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+const boxMaterial = new THREE.MeshStandardMaterial({
+  metalness: 0.3,
+  roughness: 0.4,
+  envMap: environmentMapTexture,
+  envMapIntensity: 0.5,
+});
+const createBox = (width, height, depth, position) => {
+  const mesh = new THREE.Mesh(boxGeometry, boxMaterial);
+  mesh.scale.set(width, height, depth);
+  mesh.castShadow = true;
+  mesh.position.copy(position);
+  scene.add(mesh);
+
+  const shape = new CANNON.Box(
+    new CANNON.Vec3(width * 0.5, height * 0.5, depth * 0.5)
+  );
+  const body = new CANNON.Body({
+    mass: 1,
+    position: new CANNON.Vec3(0, 3, 0),
+    shape: shape,
+    material: plasticMaterial,
+  });
+  body.position.copy(position);
+  world.addBody(body);
+  objectToUpdate.push({ mesh, body });
+};
+
+createBox(1, 1, 5, 2, { x: 0, y: 3, z: 0 });
+
+debugObject.createBox = () => {
+  createBox(Math.random(), Math.random(), Math.random(), {
+    x: (Math.random() - 0.5) * 3,
+    y: 3,
+    z: (Math.random() - 0.5) * 3,
+  });
+};
+
+gui.add(debugObject, "createBox");
+
 /**
  * Floor
  */
