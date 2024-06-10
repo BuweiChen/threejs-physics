@@ -13,7 +13,9 @@ const debugObject = {};
  * Physics
  */
 const world = new CANNON.World();
+world.broadphase = new CANNON.SAPBroadphase(world);
 world.gravity.set(0, -9.82, 0);
+world.allowSleep = true;
 const concreteMaterial = new CANNON.Material("concrete");
 const plasticMaterial = new CANNON.Material("plastic");
 const concretePlasticContactMaterial = new CANNON.ContactMaterial(
@@ -47,7 +49,7 @@ world.addBody(floorBody);
 floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(-1, 0, 0), Math.PI * 0.5);
 
 /**
- * Utils
+ * Sounds
  */
 
 /**
@@ -163,8 +165,6 @@ const createBox = (width, height, depth, position) => {
   objectToUpdate.push({ mesh, body });
 };
 
-createBox(1, 1, 5, 2, { x: 0, y: 3, z: 0 });
-
 debugObject.createBox = () => {
   createBox(Math.random(), Math.random(), Math.random(), {
     x: (Math.random() - 0.5) * 3,
@@ -276,6 +276,7 @@ const tick = () => {
   world.step(1 / 60, deltaTime, 3);
   for (const obj of objectToUpdate) {
     obj.mesh.position.copy(obj.body.position);
+    obj.mesh.quaternion.copy(obj.body.quaternion);
   }
   //   sphere.position.x = sphereBody.position.x;
   //   sphere.position.y = sphereBody.position.y;
